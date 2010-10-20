@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project name="YuiSharedTargets">
-
     <echo level="info">Starting Build For ${component}</echo>
 
     <echo level="info">Ant Properties</echo>
@@ -24,8 +23,22 @@
     <dirname property="targets.basedir" file="${ant.file.YuiSharedTargets}"/>
     <import file="${targets.basedir}/macrolib.xml" description="Macrodef definitions - jslint, yuicompessor, registerversion" />
 
-    <target name="all" depends="local, deploy" description="Build and Deploy to Global Build Directory" />
+    <target name="all" description="Build and Deploy to Global Build Directory" unless="component.donotbuild">
+        <antcall target="local" />
+        <antcall target="deploy" />
+    </target>
     <target name="local" depends="clean, init, build, minify, lint" description="Build and Deploy to Local Build Directory" />
+
+    <condition property="component.donotbuild">
+        <and>
+            <uptodate targetfile="${global.build.component}/${component.basefilename}.js">
+                <srcfiles dir="${component.basedir}" includes="**/*" />
+            </uptodate>
+            <not>
+                <istrue value="${build.force}" />
+            </not>
+        </and>
+    </condition>
 
     <target name="init">
         <tstamp/>
@@ -66,7 +79,7 @@
     </target>
 
     <!-- DEPLOY -->
-    <target name="deploy" description="Copy files to global location" depends="deploybuild, deployassets, deployskins, deploylang, deploydocs"></target>
+    <target name="deploy" description="Copy files to global location" depends="deploybuild, deployassets, deployskins, deploylang, deploydocs" />
 
     <target name="deploybuild" description="Copy built files to global build location">
         <copy todir="${global.build.component}" overwrite="true" verbose="true">
