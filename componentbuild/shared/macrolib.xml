@@ -105,12 +105,6 @@
                             echo.perform();
                         }
 
-                        if (!res.result) {
-                            var fail = project.createTask("fail");
-                            fail.setMessage("Failed to minify!");
-                            fail.perform();
-                        }
-
                         function notify (level, errors) {
                             for (var i = 0, l = errors.length; i < l; i++) {
                                 w(errors[i], level);
@@ -119,6 +113,12 @@
 
                         notify("error", res.errors);
                         notify("warning", res.warnings);
+                        
+                        if (!res.result) {
+                            var fail = project.createTask("fail");
+                            fail.setMessage("Failed to minify!");
+                            fail.perform();
+                        }
 
                         project.setProperty("yuicompressor.script", res.result);
 
